@@ -1,0 +1,11 @@
+apiVersion: v2
+name: ai-agent-fastapi
+description: ai-agent-fastapi is a Helm chart for deploying a FastAPI application with Ollama integration.
+type: application
+version: "1.0.0"
+appVersion: "0.0.0"
+dependencies:
+  - name: secure-ingress
+    version: 1.0.1
+    repository: oci://registry-1.docker.io/harriedekorte
+    alias: secure-ingress

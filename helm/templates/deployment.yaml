@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}
+  labels:
+    app: {{ .Chart.Name }}
+    {{- template "template.labels" . }}
+spec:
+  replicas: {{ .Values.project.replicas}}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 33%
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+    spec:
+      restartPolicy: {{ .Values.project.restartPolicy }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: {{ .Values.dockerhub.username }}/{{ .Chart.Name }}:{{ .Values.project.version }}
+          imagePullPolicy: {{ .Values.project.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.ingress.port }}
+          resources:
+            limits:
+              memory: {{ .Values.resources.limits.memory }}
+            requests:
+              memory: {{ .Values.resources.requests.memory }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.probe.startup.path }}
+              port: {{ .Values.ingress.port}}
+            initialDelaySeconds: {{ .Values.probe.startup.delay }}
+            failureThreshold: {{ .Values.probe.startup.failure }}
+            periodSeconds : {{ .Values.probe.startup.period }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probe.readiness.path }}
+              port: {{ .Values.ingress.port}}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probe.liveness.path }}
+              port: {{ .Values.ingress.port}}
+            initialDelaySeconds: {{ .Values.probe.liveness.delay }}
+            periodSeconds: {{ .Values.probe.liveness.period }}
+            timeoutSeconds: {{ .Values.probe.liveness.timeout }}
+            successThreshold: {{ .Values.probe.liveness.threshold.success }}
+            failureThreshold: {{ .Values.probe.liveness.threshold.failure }}

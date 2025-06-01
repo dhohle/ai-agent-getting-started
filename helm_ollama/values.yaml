@@ -1,0 +1,52 @@
+# Referencing the sub-chart
+secure-ingress:
+  host: own-fast-api-template.own-news.org
+  app:
+    name: own-fast-api-template-svc
+  network:
+    port:
+      containerPort: 8000
+  middleware:
+    redirect_name: redirect-own-fast-api-template-http
+
+# Service configuration
+ingress:
+  port: 8000
+  subdirectory: own-fast-api-template
+
+project:
+  replicas: 1
+  version: latest
+  pullPolicy: IfNotPresent # Always, Never
+  restartPolicy: Always # OnFailure, Never
+
+#https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-readiness-probes
+probe:
+  # fail if pod is not started on time
+  startup:
+    path: /healthz
+    delay: 15
+    failure: 5
+    period: 30
+  # checks to see the pod is ready to start working
+  readiness:
+    path: /api/v1/hello_world
+    todo: more variables
+  # create method to return if the pod is not working as expecting
+  liveness:
+    path: /api/v1/do_health_check
+    delay: 60
+    period: 15
+    timeout: 5
+    threshold:
+      success: 1
+      failure: 5
+
+dockerhub:
+  username: harriedekorte
+
+resources:
+  limits:
+    memory: "100Mi"
+  requests:
+    memory: "100Mi"

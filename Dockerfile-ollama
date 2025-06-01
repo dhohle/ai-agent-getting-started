@@ -1,0 +1,12 @@
+FROM ollama/ollama:latest
+
+# Expose ports
+EXPOSE 11434
+
+RUN ollama --help
+
+# Optional: preload model
+RUN ollama pull mistral:latest
+
+# Start both Ollama and your app
+CMD ["ollama", "serve"]
